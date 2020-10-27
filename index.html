@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="A simple one page which gets a CSV file and generates a Latex table code">
+  <meta name="author" content="Teddy Lazebnik">
+
+  <title>Heroic Features - Start Bootstrap Template</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="css/main.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="#">CSV to Latex table</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Page Content -->
+  <div class="container">
+  
+    <header class="jumbotron my-4" style="background: #fff; min-height: 50px !important; padding-bottom: 0px;">
+		<h1 class="display-3">Convert your CSV file into Latex code</h1>
+		<p class="lead">In order to convert, just upload your file, add the needed meta-data on the table and hit "generate". The code will be shown in the text area below.</p>
+
+    </header>
+
+    <!-- Jumbotron Header -->
+    <header class="jumbotron my-4">
+	  <form>
+		  <div class="form-group">
+			<label for="excel_file">CSV File:</label>
+			<input type="file" class="form-control-file" id="excel_file">
+		  </div>
+		  <div class="form-group">
+			<label for="text_align">Text Align:</label>
+			<input type="email" class="form-control" id="text_align" placeholder="Enter only 'left', 'center', or 'right'">
+		  </div>
+		  <div class="form-group">
+			<label for="label">Label:</label>
+			<input type="email" class="form-control" id="label" placeholder="Table label for latex \ref goes here">
+		  </div>
+		  <div class="form-group">
+			<label for="caption">Caption:</label>
+			<input type="email" class="form-control" id="caption" placeholder="Table caption goes here">
+		  </div>
+		</form>
+	  
+      <button type="button" onclick="return generateLatex();" class="btn btn-primary btn-block">Generate</button>
+	  
+	  <div class="form-group" style="margin-top: 30px;">
+		<label for="latex_code">Latex Code:</label>
+		<textarea class="form-control" id="latex_code" rows="20"></textarea>
+	  </div>
+    </header>
+
+
+  </div>
+  <!-- /.container -->
+
+  <!-- Footer -->
+  <footer class="py-5 bg-dark">
+    <div class="container">
+      <p class="m-0 text-center text-white"><a href="https://teddylazebnik.info" style="color: white;">Copyright &copy; Teddy Lazebnik</a></p>
+    </div>
+    <!-- /.container -->
+  </footer>
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script>
+
+	let fileData = "";
+	
+	
+  function generateLatex()
+  {
+	let answer = "First, upload a CSV file in order to get Latex code";
+	// make sure we have some data to work with
+	if (fileData != "")
+	{
+		// break data 
+		var lines = fileData.split("\n");
+		var maxRows = 0;
+		for (var lineIndex = 0; lineIndex < lines.length; lineIndex++)
+		{
+			var itemsCount = lines[lineIndex].split(",").length;
+			if (itemsCount > maxRows)
+			{
+				maxRows = itemsCount;
+			}
+		}
+		
+		var text_align = document.getElementById("text_align").value;
+		var align_letter = "l";
+		switch (text_align.trim().toLowerCase())
+		{
+			case "left":
+				align_letter - "l";
+				break;
+			case "center":
+				align_letter - "c";
+				break;
+			case "right":
+				align_letter - "r";
+				break;
+			default:
+				align_letter - "l";
+				break;
+		}
+		answer = "\\begin{table}[]\n\\centering\n\\begin{tabular}{|";
+		for (var i = 0; i < maxRows; i++)
+		{
+			answer += align_letter + "|";
+		}
+		answer += "}\n\\hline";
+		for (var lineIndex = 0; lineIndex < lines.length; lineIndex++)
+		{
+			var items = lines[lineIndex].split(",");
+			for (var itemIndex = 0; itemIndex < items.length; itemIndex++)
+			{
+				if (lineIndex == 0)
+				{
+					answer += " \textbf{" + items[itemIndex].trim() + "} ";
+				}
+				else
+				{
+					answer += " " + items[itemIndex].trim() + " ";
+				}
+				
+				if (itemIndex != items.length - 1)
+				{
+					answer += "&";
+				}
+			}
+			answer += "\\\\ \\hline \n";
+		}
+		answer += "\\end{tabular}\n";
+		
+		var caption = document.getElementById("caption").value;
+		if (caption != "")
+		{
+			answer += "\\caption{" + caption + "}\n";
+		}
+		var label = document.getElementById("label").value;
+		if (label != "")
+		{
+			answer += "\\label{table:" + label + "}\n";
+		}
+		else
+		{
+			answer += "\\label{tab:my-table}\n";
+		}
+		answer += "\\end{table}\n";
+	}
+	document.getElementById("latex_code").value = answer;
+	return false;
+  }
+
+	function handleFileSelect(event)
+	{
+	  const reader = new FileReader()
+	  reader.onload = handleFileLoad;
+	  reader.readAsText(event.target.files[0])
+	}
+
+	function handleFileLoad(event)
+	{
+	  console.log(event);
+	  fileData = event.target.result;
+	}
+	  
+  document.getElementById('excel_file').addEventListener('change', handleFileSelect, false);
+  
+  </script>
+
+</body>
+
+</html>
